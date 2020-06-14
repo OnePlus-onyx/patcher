@@ -1,7 +1,7 @@
-From bf0f93fe411d61588bd3631338c6f1d2953f60e0 Mon Sep 17 00:00:00 2001
+From 98039c7691affd54239f1729aea43d8bcd0e230c Mon Sep 17 00:00:00 2001
 From: David Ng <dave@codeaurora.org>
 Date: Mon, 23 Sep 2013 18:50:24 -0700
-Subject: [PATCH] init: Add vendor-specific initialization hooks.
+Subject: [PATCH 4/5] init: Add vendor-specific initialization hooks.
 
 Allow optional vendor-specific initializations
 within init.  This can be used for runtime
@@ -9,6 +9,7 @@ initialization setup that init rc scripts do
 not support.
 
 Change-Id: I7623a0d59b18f9ec8e3623958e2f7ccd72b877bf
+Signed-off-by: ittat <ittat@live.com>
 ---
  init/Android.bp           |  8 ++++++++
  init/Android.mk           |  5 +++++
@@ -21,7 +22,7 @@ Change-Id: I7623a0d59b18f9ec8e3623958e2f7ccd72b877bf
  create mode 100644 init/vendor_init.h
 
 diff --git a/init/Android.bp b/init/Android.bp
-index 6be7290e327..c93852c2f1f 100644
+index 6be7290e3..c93852c2f 100644
 --- a/init/Android.bp
 +++ b/init/Android.bp
 @@ -136,6 +136,7 @@ cc_library_static {
@@ -47,7 +48,7 @@ index 6be7290e327..c93852c2f1f 100644
  
  // Tests
 diff --git a/init/Android.mk b/init/Android.mk
-index c4f7d34b2d7..e52fbef6ba3 100644
+index c4f7d34b2..e52fbef6b 100644
 --- a/init/Android.mk
 +++ b/init/Android.mk
 @@ -113,6 +113,11 @@ LOCAL_STATIC_LIBRARIES := \
@@ -63,7 +64,7 @@ index c4f7d34b2d7..e52fbef6ba3 100644
  endif
  
 diff --git a/init/NOTICE b/init/NOTICE
-index c5b1efa7aac..383d0f5418a 100644
+index c5b1efa7a..383d0f541 100644
 --- a/init/NOTICE
 +++ b/init/NOTICE
 @@ -188,3 +188,29 @@
@@ -97,7 +98,7 @@ index c5b1efa7aac..383d0f5418a 100644
 +OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 +IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 diff --git a/init/property_service.cpp b/init/property_service.cpp
-index f2c7462abf0..470f6e06c46 100644
+index f2c7462ab..470f6e06c 100644
 --- a/init/property_service.cpp
 +++ b/init/property_service.cpp
 @@ -64,6 +64,7 @@
@@ -120,7 +121,7 @@ index f2c7462abf0..470f6e06c46 100644
  
 diff --git a/init/vendor_init.cpp b/init/vendor_init.cpp
 new file mode 100644
-index 00000000000..d3fd5ffe2be
+index 000000000..d3fd5ffe2
 --- /dev/null
 +++ b/init/vendor_init.cpp
 @@ -0,0 +1,37 @@
@@ -163,7 +164,7 @@ index 00000000000..d3fd5ffe2be
 +}
 diff --git a/init/vendor_init.h b/init/vendor_init.h
 new file mode 100644
-index 00000000000..9afb449be01
+index 000000000..9afb449be
 --- /dev/null
 +++ b/init/vendor_init.h
 @@ -0,0 +1,33 @@
@@ -200,3 +201,6 @@ index 00000000000..9afb449be01
 +#define __INIT_VENDOR__H__
 +extern void vendor_load_properties(void);
 +#endif /* __INIT_VENDOR__H__ */
+-- 
+2.17.1
+
