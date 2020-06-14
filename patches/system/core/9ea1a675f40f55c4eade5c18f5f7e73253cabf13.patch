@@ -21,6 +21,9 @@ index ccc37b70cb4..ad9a3e0aff2 100644
          free(new_con);
      }
      if (rc == 0 && computed_context == mycon.get()) {
+#if ALLOW_PERMISSIVE_SELINUX
+	// Allow permissive don't return error
+#else
 -        return Error() << "File " << service_path << "(labeled \"" << filecon.get()
 -                       << "\") has incorrect label or no domain transition from " << mycon.get()
 -                       << " to another SELinux domain defined. Have you configured your "
@@ -36,6 +39,7 @@ index ccc37b70cb4..ad9a3e0aff2 100644
 +            return Error() << error;
 +        }
 +        LOG(ERROR) << error;
-     }
+#endif
+    }
      if (rc < 0) {
          return Error() << "Could not get process context";
