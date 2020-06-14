@@ -1,0 +1,83 @@
+From e0ecd83fd9000d94544014040bf1954a4d8fde39 Mon Sep 17 00:00:00 2001
+From: Simon Shields <simon@lineageos.org>
+Date: Wed, 23 Aug 2017 12:05:33 +1000
+Subject: [PATCH 3/7] soong: Extend with Lemon board flags
+
+Includes the following commit:
+
+Author: Simon Shields <simon@lineageos.org>
+Date:   Mon Sep 4 21:09:44 2017 +1000
+
+    soong: explicitly specify name of Lineage variables struct
+
+    Change-Id: Ic754b8a13658ddc40620f985581bd1754b780b15
+
+Change-Id: If127c9da6b57340ae57e0cf725151cdcc3c82ef3
+Signed-off-by: ittat <ittat@live.com>
+---
+ Android.bp                | 1 +
+ android/variable.go       | 8 ++++++++
+ scripts/microfactory.bash | 2 +-
+ 3 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/Android.bp b/Android.bp
+index 1d65dff0..b6c44507 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -37,6 +37,7 @@ bootstrap_go_package {
+         "blueprint-bootstrap",
+         "soong",
+         "soong-env",
++        "soong-lemon",
+     ],
+     srcs: [
+         "android/androidmk.go",
+diff --git a/android/variable.go b/android/variable.go
+index e643c0eb..4d3bae6a 100644
+--- a/android/variable.go
++++ b/android/variable.go
+@@ -20,6 +20,8 @@ import (
+ 	"runtime"
+ 	"strings"
+ 
++	"lemon/soong/android"
++
+ 	"github.com/google/blueprint/proptools"
+ )
+ 
+@@ -124,6 +126,9 @@ type variableProperties struct {
+ 			Static_libs  []string
+ 			Srcs         []string
+ 		}
++
++		// include Lemon variables
++		Lemon android.Product_variables
+ 	} `android:"arch_variant"`
+ }
+ 
+@@ -287,6 +292,9 @@ type productVariables struct {
+ 	ProductHiddenAPIStubsTest   []string `json:",omitempty"`
+ 
+ 	TargetFSConfigGen []string `json:",omitempty"`
++
++	// include Lemon variables
++	Lemon android.ProductVariables
+ }
+ 
+ func boolPtr(v bool) *bool {
+diff --git a/scripts/microfactory.bash b/scripts/microfactory.bash
+index 4bb6058a..18118553 100644
+--- a/scripts/microfactory.bash
++++ b/scripts/microfactory.bash
+@@ -59,7 +59,7 @@ function soong_build_go
+     BUILDDIR=$(getoutdir) \
+       SRCDIR=${TOP} \
+       BLUEPRINTDIR=${TOP}/build/blueprint \
+-      EXTRA_ARGS="-pkg-path android/soong=${TOP}/build/soong -pkg-path github.com/golang/protobuf=${TOP}/external/golang-protobuf" \
++      EXTRA_ARGS="-pkg-path android/soong=${TOP}/build/soong -pkg-path github.com/golang/protobuf=${TOP}/external/golang-protobuf -pkg-path lemon/soong=${TOP}/vendor/lemon/build/soong" \
+       build_go $@
+ }
+ 
+-- 
+2.17.1
+

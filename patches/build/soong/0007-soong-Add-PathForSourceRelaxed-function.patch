@@ -1,0 +1,82 @@
+From b367f35a3cf90a6c0327b32b9ad8b5a7bb2767ea Mon Sep 17 00:00:00 2001
+From: Sam Mortimer <sam@mortimer.me.uk>
+Date: Fri, 17 Aug 2018 11:25:08 -0700
+Subject: [PATCH 7/7] soong: Add PathForSourceRelaxed function
+
+Change-Id: I94143febb0a8afa6a165364d36a40d5120a4e7bc
+Signed-off-by: ittat <ittat@live.com>
+---
+ android/paths.go | 50 ++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
+
+diff --git a/android/paths.go b/android/paths.go
+index 8cc7057a..8d0573d5 100644
+--- a/android/paths.go
++++ b/android/paths.go
+@@ -644,6 +644,31 @@ func pathForSource(ctx PathContext, pathComponents ...string) (SourcePath, error
+ 	return ret, nil
+ }
+ 
++// pathForSourceRelaxed creates a SourcePath from pathComponents, but does not check that it exists.
++// It differs from pathForSource in that the path is allowed to exist outside of the PathContext.
++func pathForSourceRelaxed(ctx PathContext, pathComponents ...string) (SourcePath, error) {
++	p := filepath.Join(pathComponents...)
++	ret := SourcePath{basePath{p, ctx.Config(), ""}}
++
++	abs, err := filepath.Abs(ret.String())
++	if err != nil {
++		return ret, err
++	}
++	buildroot, err := filepath.Abs(ctx.Config().buildDir)
++	if err != nil {
++		return ret, err
++	}
++	if strings.HasPrefix(abs, buildroot) {
++		return ret, fmt.Errorf("source path %s is in output", abs)
++	}
++
++	if pathtools.IsGlob(ret.String()) {
++		return ret, fmt.Errorf("path may not contain a glob: %s", ret.String())
++	}
++
++	return ret, nil
++}
++
+ // existsWithDependencies returns true if the path exists, and adds appropriate dependencies to rerun if the
+ // path does not exist.
+ func existsWithDependencies(ctx PathContext, path SourcePath) (exists bool, err error) {
+@@ -697,6 +722,31 @@ func PathForSource(ctx PathContext, pathComponents ...string) SourcePath {
+ 	return path
+ }
+ 
++// PathForSourceRelaxed joins the provided path components.  Unlike PathForSource,
++// the result is allowed to exist outside of the source dir.
++// On error, it will return a usable, but invalid SourcePath, and report a ModuleError.
++func PathForSourceRelaxed(ctx PathContext, pathComponents ...string) SourcePath {
++	path, err := pathForSourceRelaxed(ctx, pathComponents...)
++	if err != nil {
++		reportPathError(ctx, err)
++	}
++
++	if modCtx, ok := ctx.(ModuleContext); ok && ctx.Config().AllowMissingDependencies() {
++		exists, err := existsWithDependencies(ctx, path)
++		if err != nil {
++			reportPathError(ctx, err)
++		}
++		if !exists {
++			modCtx.AddMissingDependencies([]string{path.String()})
++		}
++	} else if exists, _, err := ctx.Fs().Exists(path.String()); err != nil {
++		reportPathErrorf(ctx, "%s: %s", path, err.Error())
++	} else if !exists {
++		reportPathErrorf(ctx, "source path %s does not exist", path)
++	}
++	return path
++}
++
+ // ExistentPathForSource returns an OptionalPath with the SourcePath if the
+ // path exists, or an empty OptionalPath if it doesn't exist. Dependencies are added
+ // so that the ninja file will be regenerated if the state of the path changes.
+-- 
+2.17.1
+

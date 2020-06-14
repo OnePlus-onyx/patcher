@@ -1,0 +1,205 @@
+From d50b237e93fc42f3048dc208b8b62ece71433d9c Mon Sep 17 00:00:00 2001
+From: Srinu Jella <sjella@codeaurora.org>
+Date: Mon, 24 Aug 2015 21:00:28 +0530
+Subject: [PATCH 2/8] Bluetooth: Read BLE vendor capability to proceed on
+ Secure conn
+
+- Read BLE vendor capability to proceed on enablement of
+  secure connection support from Host.
+
+- If BLE vendor capability is supported from the controller
+  then secure connection is enabled from Host.
+
+CRs-Fixed: 900778
+Change-Id: I64e79d4e6fff7d9f1b0ea7272250e8155f5888e2
+Signed-off-by: Kshitij Gupta <kshitijgm@gmail.com>
+Signed-off-by: ittat <ittat@live.com>
+---
+ device/include/controller.h      |  2 +-
+ device/src/controller.cc         | 27 +++++++++++++++++++--------
+ hci/include/hci_packet_factory.h |  1 +
+ hci/include/hci_packet_parser.h  |  4 ++++
+ hci/src/hci_layer.cc             | 14 ++++++++++++++
+ hci/src/hci_packet_factory.cc    |  8 +++++++-
+ hci/src/hci_packet_parser.cc     | 14 ++++++++++++++
+ 7 files changed, 60 insertions(+), 10 deletions(-)
+
+diff --git a/device/include/controller.h b/device/include/controller.h
+index c1fe337f2..481f6c317 100644
+--- a/device/include/controller.h
++++ b/device/include/controller.h
+@@ -86,7 +86,7 @@ typedef struct controller_t {
+   void (*set_ble_resolving_list_max_size)(int resolving_list_max_size);
+   uint8_t* (*get_local_supported_codecs)(uint8_t* number_of_codecs);
+   uint8_t (*get_le_all_initiating_phys)(void);
+-
++  bool (*supports_ble_offload_features)(void);
+ } controller_t;
+ 
+ const controller_t* controller_get_interface();
+diff --git a/device/src/controller.cc b/device/src/controller.cc
+index 34c8afd35..3c1834774 100644
+--- a/device/src/controller.cc
++++ b/device/src/controller.cc
+@@ -84,6 +84,7 @@ static uint8_t number_of_local_supported_codecs = 0;
+ 
+ static bool readable;
+ static bool ble_supported;
++static bool ble_offload_features_supported;
+ static bool simple_pairing_supported;
+ static bool secure_connections_supported;
+ 
+@@ -178,14 +179,17 @@ static future_t* start_up(void) {
+     page_number++;
+   }
+ 
++  // read BLE offload features support from controller
++  response = AWAIT_COMMAND(packet_factory->make_ble_read_offload_features_support());
++  packet_parser->parse_ble_read_offload_features_response(response, &ble_offload_features_supported);
++
+ #if (SC_MODE_INCLUDED == TRUE)
+-  secure_connections_supported =
+-      HCI_SC_CTRLR_SUPPORTED(features_classic[2].as_array);
+-  if (secure_connections_supported) {
+-    response = AWAIT_COMMAND(
+-        packet_factory->make_write_secure_connections_host_support(
+-            HCI_SC_MODE_ENABLED));
+-    packet_parser->parse_generic_command_complete(response);
++  if(ble_offload_features_supported) {
++    secure_connections_supported = HCI_SC_CTRLR_SUPPORTED(features_classic[2].as_array);
++    if (secure_connections_supported) {
++      response = AWAIT_COMMAND(packet_factory->make_write_secure_connections_host_support(HCI_SC_MODE_ENABLED));
++      packet_parser->parse_generic_command_complete(response);
++    }
+   }
+ #endif
+ 
+@@ -441,6 +445,11 @@ static bool supports_ble_periodic_advertising(void) {
+   CHECK(readable);
+   CHECK(ble_supported);
+   return HCI_LE_PERIODIC_ADVERTISING_SUPPORTED(features_ble.as_array);
++
++static bool supports_ble_offload_features(void) {
++  assert(readable);
++  assert(ble_supported);
++  return ble_offload_features_supported;
+ }
+ 
+ static uint16_t get_acl_data_size_classic(void) {
+@@ -580,7 +589,9 @@ static const controller_t interface = {
+     get_ble_resolving_list_max_size,
+     set_ble_resolving_list_max_size,
+     get_local_supported_codecs,
+-    get_le_all_initiating_phys};
++    get_le_all_initiating_phys,
++    supports_ble_offload_features
++};
+ 
+ const controller_t* controller_get_interface() {
+   static bool loaded = false;
+diff --git a/hci/include/hci_packet_factory.h b/hci/include/hci_packet_factory.h
+index e7cb47b0b..91caa7a34 100644
+--- a/hci/include/hci_packet_factory.h
++++ b/hci/include/hci_packet_factory.h
+@@ -46,6 +46,7 @@ typedef struct {
+   BT_HDR* (*make_ble_read_number_of_supported_advertising_sets)(void);
+   BT_HDR* (*make_ble_set_event_mask)(const bt_event_mask_t* event_mask);
+   BT_HDR* (*make_read_local_supported_codecs)(void);
++  BT_HDR *(*make_ble_read_offload_features_support)(void);
+ } hci_packet_factory_t;
+ 
+ const hci_packet_factory_t* hci_packet_factory_get_interface();
+diff --git a/hci/include/hci_packet_parser.h b/hci/include/hci_packet_parser.h
+index 8878cb968..1cc125d97 100644
+--- a/hci/include/hci_packet_parser.h
++++ b/hci/include/hci_packet_parser.h
+@@ -83,6 +83,10 @@ typedef struct {
+       BT_HDR* response, uint8_t* number_of_local_supported_codecs,
+       uint8_t* local_supported_codecs);
+ 
++  void (*parse_ble_read_offload_features_response)(
++    BT_HDR *response,
++    bool *ble_offload_features_supported);
++
+ } hci_packet_parser_t;
+ 
+ const hci_packet_parser_t* hci_packet_parser_get_interface();
+diff --git a/hci/src/hci_layer.cc b/hci/src/hci_layer.cc
+index 61ca7de68..264ee03ea 100644
+--- a/hci/src/hci_layer.cc
++++ b/hci/src/hci_layer.cc
+@@ -666,6 +666,20 @@ static waiting_command_t* get_waiting_command(command_opcode_t opcode) {
+     waiting_command_t* wait_entry =
+         reinterpret_cast<waiting_command_t*>(list_node(node));
+ 
++   if (!wait_entry || wait_entry->opcode != opcode)
++      continue;
++
++    list_remove(commands_pending_response, wait_entry);
++
++    pthread_mutex_unlock(&commands_pending_response_lock);
++    return wait_entry;
++  }
++  // look for any command complete with improper VS Opcode
++  for (const list_node_t *node = list_begin(commands_pending_response);
++      node != list_end(commands_pending_response);
++      node = list_next(node)) {
++    waiting_command_t *wait_entry = list_node(node);
++
+     if (!wait_entry || wait_entry->opcode != opcode) {
+         if(((wait_entry->opcode & HCI_GRP_VENDOR_SPECIFIC) == HCI_GRP_VENDOR_SPECIFIC) &&
+            ((opcode & HCI_GRP_VENDOR_SPECIFIC) == HCI_GRP_VENDOR_SPECIFIC)) {
+diff --git a/hci/src/hci_packet_factory.cc b/hci/src/hci_packet_factory.cc
+index ca0fb5fa6..e80fa5234 100644
+--- a/hci/src/hci_packet_factory.cc
++++ b/hci/src/hci_packet_factory.cc
+@@ -159,6 +159,10 @@ static BT_HDR* make_read_local_supported_codecs(void) {
+   return make_command_no_params(HCI_READ_LOCAL_SUPPORTED_CODECS);
+ }
+ 
++static BT_HDR *make_ble_read_offload_features_support(void) {
++    return make_command_no_params(HCI_BLE_VENDOR_CAP_OCF);
++}
++
+ static BT_HDR* make_ble_set_event_mask(const bt_event_mask_t* event_mask) {
+   uint8_t* stream;
+   uint8_t parameter_size = sizeof(bt_event_mask_t);
+@@ -220,7 +224,9 @@ static const hci_packet_factory_t interface = {
+     make_ble_read_maximum_advertising_data_length,
+     make_ble_read_number_of_supported_advertising_sets,
+     make_ble_set_event_mask,
+-    make_read_local_supported_codecs};
++    make_read_local_supported_codecs,
++    make_ble_read_offload_features_support
++};
+ 
+ const hci_packet_factory_t* hci_packet_factory_get_interface() {
+   buffer_allocator = buffer_allocator_get_interface();
+diff --git a/hci/src/hci_packet_parser.cc b/hci/src/hci_packet_parser.cc
+index b1efd444d..f5ea42915 100644
+--- a/hci/src/hci_packet_parser.cc
++++ b/hci/src/hci_packet_parser.cc
+@@ -85,6 +85,20 @@ static void parse_read_local_supported_codecs_response(
+   buffer_allocator->free(response);
+ }
+ 
++static void parse_ble_read_offload_features_response(
++    BT_HDR *response,
++    bool *ble_offload_features_supported) {
++
++  uint8_t *stream = read_command_complete_header(response, NO_OPCODE_CHECKING, 0 /* bytes after */);
++  if(stream) {
++    *ble_offload_features_supported  = true;
++  } else {
++    *ble_offload_features_supported  = false;
++  }
++
++  buffer_allocator->free(response);
++}
++
+ static void parse_read_bd_addr_response(BT_HDR* response,
+                                         RawAddress* address_ptr) {
+   uint8_t* stream = read_command_complete_header(
+-- 
+2.17.1
+

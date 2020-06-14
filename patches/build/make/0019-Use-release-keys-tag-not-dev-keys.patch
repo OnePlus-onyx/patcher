@@ -1,0 +1,29 @@
+From a4b081b3dd12fbc641840e4cc6452023331c5e99 Mon Sep 17 00:00:00 2001
+From: beanstown106 <nbenis106@gmail.com>
+Date: Fri, 21 Apr 2017 14:32:56 -0400
+Subject: [PATCH 19/33] Use release-keys tag not dev-keys
+
+- Fix issues with some app requiring release-keys
+
+Change-Id: Ia1352c5408670ed37b7ea529813fbb3df425003f
+Signed-off-by: ittat <ittat@live.com>
+---
+ core/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index d146b0141..cc214019b 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -303,7 +303,7 @@ endif
+ ifeq ($(DEFAULT_SYSTEM_DEV_CERTIFICATE),build/target/product/security/testkey)
+ BUILD_KEYS := test-keys
+ else
+-BUILD_KEYS := dev-keys
++BUILD_KEYS := release-keys
+ endif
+ BUILD_VERSION_TAGS += $(BUILD_KEYS)
+ BUILD_VERSION_TAGS := $(subst $(space),$(comma),$(sort $(BUILD_VERSION_TAGS)))
+-- 
+2.17.1
+

@@ -1,0 +1,31 @@
+From e71230338338853eadf07639c390537c4f868f6a Mon Sep 17 00:00:00 2001
+From: Luke Zhang <lukez@codeaurora.org>
+Date: Sun, 16 Jul 2017 11:54:53 -0700
+Subject: [PATCH 6/8] Prevent abort in case of command timeout
+
+In case of command timeout, if we have crash SOC and collect ram
+dumps, then we do not need to call abort() anymore.
+
+CRs-fixed: 2074622
+Change-Id: I13a0fc0fbaa21ee2ef400d6295eecad0865ffcad
+Signed-off-by: ittat <ittat@live.com>
+---
+ hci/src/hci_layer.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hci/src/hci_layer.cc b/hci/src/hci_layer.cc
+index bd62ad65f..85a6f9a09 100644
+--- a/hci/src/hci_layer.cc
++++ b/hci/src/hci_layer.cc
+@@ -442,7 +442,7 @@ static void hci_timeout_abort(void* unused_data) {
+ 
+   // We shouldn't try to recover the stack from this command timeout.
+   // If it's caused by a software bug, fix it. If it's a hardware bug, fix it.
+-  abort();
++  exit(0);
+ }
+ 
+ static void command_timed_out_log_info(void* original_wait_entry) {
+-- 
+2.17.1
+

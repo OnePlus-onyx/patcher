@@ -1,0 +1,23 @@
+From d8f99cc4c0b5d75a72663ec7dfefd68219396395 Mon Sep 17 00:00:00 2001
+From: dianlujitao <dianlujitao@lineageos.org>
+Date: Sun, 8 Sep 2019 21:44:37 +0800
+Subject: [PATCH] tinycompress: Enable extended compress format
+
+Change-Id: If157d80f3c52e67911c19f3899cc4cae370a849f
+---
+ include/tinycompress/tinycompress.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/tinycompress/tinycompress.h b/include/tinycompress/tinycompress.h
+index 0ab7134..42025d0 100644
+--- a/include/tinycompress/tinycompress.h
++++ b/include/tinycompress/tinycompress.h
+@@ -82,6 +82,8 @@ struct compr_gapless_mdata {
+ struct compress;
+ struct snd_compr_tstamp;
+ 
++#define ENABLE_EXTENDED_COMPRESS_FORMAT
++
+ #ifdef ENABLE_EXTENDED_COMPRESS_FORMAT
+ union snd_codec_options;
+ struct snd_compr_metadata;
