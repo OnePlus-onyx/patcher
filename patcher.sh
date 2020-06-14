@@ -2,7 +2,9 @@
 
 ROOT="${PWD}"
 
+
 REPOSITORIES=(
+    'art'
     'bionic'
     'build/make'
     'build/soong'
