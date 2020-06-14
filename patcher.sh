@@ -2,7 +2,6 @@
 
 ROOT="${PWD}"
 
-
 REPOSITORIES=(
     'art'
     'bionic'
