@@ -7,7 +7,7 @@ REPOSITORIES=(
     'bionic'
     'build/make'
     'build/soong'
-#    'external/selinux'
+    'external/selinux'
     'external/tinycompress'
     'frameworks/av'
     'frameworks/native'
