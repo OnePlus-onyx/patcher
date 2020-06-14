@@ -1,0 +1,25 @@
+From 54bc8086f300bd2797ffe6aed7ddccf7f7f953ec Mon Sep 17 00:00:00 2001
+From: Ricardo Cerqueira <cyanogenmod@cerqueira.org>
+Date: Sun, 4 Aug 2013 13:25:00 +0100
+Subject: [PATCH 23/33] Enable the SELinux dialog in Settings
+
+Change-Id: Icc708416d062bc811c83bce0841331c84afcb3f6
+Signed-off-by: ittat <ittat@live.com>
+---
+ target/product/base_system.mk | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/target/product/base_system.mk b/target/product/base_system.mk
+index 822d2ead8..77719229b 100644
+--- a/target/product/base_system.mk
++++ b/target/product/base_system.mk
+@@ -391,3 +391,6 @@ PRODUCT_COPY_FILES += $(call add-to-product-copy-files-if-exists,\
+     frameworks/base/config/dirty-image-objects:system/etc/dirty-image-objects)
+ 
+ $(call inherit-product, $(SRC_TARGET_DIR)/product/runtime_libart.mk)
++
++PRODUCT_PROPERTY_OVERRIDES += \
++    ro.build.selinux=1
+-- 
+2.17.1
+

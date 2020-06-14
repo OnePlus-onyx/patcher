@@ -1,0 +1,84 @@
+From 31d352a3f143c2f6ac4755d6b0c4f5e3b7136caf Mon Sep 17 00:00:00 2001
+From: Kshitij Gupta <kshitijgm@gmail.com>
+Date: Sun, 20 Aug 2017 16:14:59 +0530
+Subject: [PATCH 3/8] bt: hci: Fix build
+
+[@AgentFabulous - POSP]
+- Use unique_lock instead of lock_guard to use unlock();
+- Add LOG_TAG in LOG_DEBUG
+- Fix cherry-picking derps :3
+
+Change-Id: Ic54cf794d856a49ff329bbde5074b8ecf63c7135
+Signed-off-by: Kshitij Gupta <kshitijgm@gmail.com>
+Signed-off-by: ittat <ittat@live.com>
+---
+ device/src/controller.cc     | 1 +
+ hci/src/hci_layer.cc         | 8 ++++----
+ hci/src/hci_packet_parser.cc | 3 ++-
+ 3 files changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/device/src/controller.cc b/device/src/controller.cc
+index 3c1834774..1cbe02d62 100644
+--- a/device/src/controller.cc
++++ b/device/src/controller.cc
+@@ -445,6 +445,7 @@ static bool supports_ble_periodic_advertising(void) {
+   CHECK(readable);
+   CHECK(ble_supported);
+   return HCI_LE_PERIODIC_ADVERTISING_SUPPORTED(features_ble.as_array);
++}
+ 
+ static bool supports_ble_offload_features(void) {
+   assert(readable);
+diff --git a/hci/src/hci_layer.cc b/hci/src/hci_layer.cc
+index 264ee03ea..e5a17194f 100644
+--- a/hci/src/hci_layer.cc
++++ b/hci/src/hci_layer.cc
+@@ -658,7 +658,7 @@ static void dispatch_reassembled(BT_HDR* packet) {
+ // Misc internal functions
+ 
+ static waiting_command_t* get_waiting_command(command_opcode_t opcode) {
+-  std::lock_guard<std::recursive_timed_mutex> lock(
++  std::unique_guard<std::recursive_timed_mutex> lock(
+       commands_pending_response_mutex);
+ 
+   for (const list_node_t* node = list_begin(commands_pending_response);
+@@ -671,19 +671,19 @@ static waiting_command_t* get_waiting_command(command_opcode_t opcode) {
+ 
+     list_remove(commands_pending_response, wait_entry);
+ 
+-    pthread_mutex_unlock(&commands_pending_response_lock);
++    lock.unlock();
+     return wait_entry;
+   }
+   // look for any command complete with improper VS Opcode
+   for (const list_node_t *node = list_begin(commands_pending_response);
+       node != list_end(commands_pending_response);
+       node = list_next(node)) {
+-    waiting_command_t *wait_entry = list_node(node);
++    waiting_command_t *wait_entry = reinterpret_cast<waiting_command_t*>(list_node(node));
+ 
+     if (!wait_entry || wait_entry->opcode != opcode) {
+         if(((wait_entry->opcode & HCI_GRP_VENDOR_SPECIFIC) == HCI_GRP_VENDOR_SPECIFIC) &&
+            ((opcode & HCI_GRP_VENDOR_SPECIFIC) == HCI_GRP_VENDOR_SPECIFIC)) {
+-            LOG_DEBUG("%s VS event found treat it as valid 0x%x", __func__, opcode);
++            LOG_DEBUG(LOG_TAG, "%s VS event found treat it as valid 0x%x", __func__, opcode);
+         }
+         else {
+             continue;
+diff --git a/hci/src/hci_packet_parser.cc b/hci/src/hci_packet_parser.cc
+index f5ea42915..3f4e46cb4 100644
+--- a/hci/src/hci_packet_parser.cc
++++ b/hci/src/hci_packet_parser.cc
+@@ -295,7 +295,8 @@ static const hci_packet_parser_t interface = {
+     parse_ble_read_maximum_data_length_response,
+     parse_ble_read_maximum_advertising_data_length,
+     parse_ble_read_number_of_supported_advertising_sets,
+-    parse_read_local_supported_codecs_response};
++    parse_read_local_supported_codecs_response,
++    parse_ble_read_offload_features_response};
+ 
+ const hci_packet_parser_t* hci_packet_parser_get_interface() {
+   buffer_allocator = buffer_allocator_get_interface();
+-- 
+2.17.1
+

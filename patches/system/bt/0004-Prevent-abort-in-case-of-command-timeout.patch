@@ -1,0 +1,31 @@
+From 90cf67ab18d731a4c4ec5a196f275f4d80f1cf7a Mon Sep 17 00:00:00 2001
+From: Luke Zhang <lukez@codeaurora.org>
+Date: Sun, 16 Jul 2017 11:54:53 -0700
+Subject: [PATCH 4/8] Prevent abort in case of command timeout
+
+In case of command timeout, if we have crash SOC and collect ram
+dumps, then we do not need to call abort() anymore.
+
+CRs-fixed: 2074622
+Change-Id: I13a0fc0fbaa21ee2ef400d6295eecad0865ffcad
+Signed-off-by: ittat <ittat@live.com>
+---
+ hci/src/hci_layer.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hci/src/hci_layer.cc b/hci/src/hci_layer.cc
+index e5a17194f..bd62ad65f 100644
+--- a/hci/src/hci_layer.cc
++++ b/hci/src/hci_layer.cc
+@@ -524,7 +524,7 @@ static void command_timed_out(void* original_wait_entry) {
+   hci_timeout_abort_timer = alarm_new("hci.hci_timeout_aborter");
+   if (!hci_timeout_abort_timer) {
+     LOG_ERROR(LOG_TAG, "%s unable to create an abort timer.", __func__);
+-    abort();
++    exit(0);
+   }
+   alarm_set(hci_timeout_abort_timer, COMMAND_TIMEOUT_RESTART_MS,
+             hci_timeout_abort, nullptr);
+-- 
+2.17.1
+

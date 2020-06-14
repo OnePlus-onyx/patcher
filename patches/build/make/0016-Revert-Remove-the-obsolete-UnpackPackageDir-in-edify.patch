@@ -1,0 +1,33 @@
+From b5ef0463076c9798926e9113ceea879a254c9d67 Mon Sep 17 00:00:00 2001
+From: Adrian DC <radian.dc@gmail.com>
+Date: Wed, 25 Oct 2017 23:28:54 +0200
+Subject: [PATCH 16/33] Revert "Remove the obsolete UnpackPackageDir() in edify
+ generator"
+
+This reverts commit 6a324ba588af6e7f1e4a13cfb2e95ed7738d487e.
+
+Change-Id: I6beae0ed9039d04cfc8a509452928bbcd66d4eed
+Signed-off-by: ittat <ittat@live.com>
+---
+ tools/releasetools/edify_generator.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/tools/releasetools/edify_generator.py b/tools/releasetools/edify_generator.py
+index c1ff8d2fc..0cebb607f 100644
+--- a/tools/releasetools/edify_generator.py
++++ b/tools/releasetools/edify_generator.py
+@@ -225,6 +225,11 @@ class EdifyGenerator(object):
+           p.mount_point, mount_flags))
+       self.mounts.add(p.mount_point)
+ 
++  def UnpackPackageDir(self, src, dst):
++    """Unpack a given directory from the OTA package into the given
++    destination directory."""
++    self.script.append('package_extract_dir("%s", "%s");' % (src, dst))
++
+   def Comment(self, comment):
+     """Write a comment into the update script."""
+     self.script.append("")
+-- 
+2.17.1
+

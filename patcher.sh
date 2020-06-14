@@ -3,7 +3,18 @@
 ROOT="${PWD}"
 
 REPOSITORIES=(
+    'bionic'
+    'build/make'
+    'build/soong'
+    'external/selinux'
+    'external/tinycompress'
+    'frameworks/av'
+    'frameworks/native'
     'frameworks/base'
+    'hardware/libhardware'
+    'hardware/libhardware_legacy'
+    'system/bt'
+    'system/core'
 )
 
 for repository in "${REPOSITORIES[@]}"; do

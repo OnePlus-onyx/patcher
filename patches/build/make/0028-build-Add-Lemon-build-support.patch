@@ -1,0 +1,52 @@
+From b8ffe7f494627257d86d40ab23249d15c7cdeb52 Mon Sep 17 00:00:00 2001
+From: Luca Stefani <luca020400@lineageos.org>
+Date: Thu, 17 Aug 2017 21:21:23 +0200
+Subject: [PATCH 28/33] build: Add Lemon build support
+
+Change-Id: Iab8b2ef8b644a7bea10bfd28b99d9e69539b1357
+Signed-off-by: ittat <ittat@live.com>
+---
+ core/Makefile      | 1 +
+ core/config.mk     | 2 ++
+ tools/buildinfo.sh | 2 ++
+ 3 files changed, 5 insertions(+)
+
+diff --git a/core/Makefile b/core/Makefile
+index cc214019b..9561be1d5 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -413,6 +413,7 @@ endif
+ 	$(hide) TARGET_BUILD_TYPE="$(TARGET_BUILD_VARIANT)" \
+ 	        TARGET_BUILD_FLAVOR="$(TARGET_BUILD_FLAVOR)" \
+ 	        TARGET_DEVICE="$(TARGET_DEVICE)" \
++		LEMON_DEVICE="$(TARGET_DEVICE)" \
+ 	        PRODUCT_DEFAULT_LOCALE="$(call get-default-product-locale,$(PRODUCT_LOCALES))" \
+ 	        PRODUCT_DEFAULT_WIFI_CHANNELS="$(PRODUCT_DEFAULT_WIFI_CHANNELS)" \
+ 	        PRIVATE_BUILD_DESC="$(PRIVATE_BUILD_DESC)" \
+diff --git a/core/config.mk b/core/config.mk
+index 264ad56f6..b287edb92 100644
+--- a/core/config.mk
++++ b/core/config.mk
+@@ -230,6 +230,8 @@ include $(BUILD_SYSTEM)/envsetup.mk
+ # See envsetup.mk for a description of SCAN_EXCLUDE_DIRS
+ FIND_LEAVES_EXCLUDES := $(addprefix --prune=, $(SCAN_EXCLUDE_DIRS) .repo .git)
+ 
++include vendor/lemon/config/BoardConfigLemon.mk
++
+ # The build system exposes several variables for where to find the kernel
+ # headers:
+ #   TARGET_DEVICE_KERNEL_HEADERS is automatically created for the current
+diff --git a/tools/buildinfo.sh b/tools/buildinfo.sh
+index 24ac663f2..a5ac13ab5 100755
+--- a/tools/buildinfo.sh
++++ b/tools/buildinfo.sh
+@@ -55,4 +55,6 @@ if [ -n "$BUILD_THUMBPRINT" ] ; then
+   echo "ro.build.thumbprint=$BUILD_THUMBPRINT"
+ fi
+ 
++echo "ro.lemon.device=$LEMON_DEVICE"
++
+ echo "# end build properties"
+-- 
+2.17.1
+

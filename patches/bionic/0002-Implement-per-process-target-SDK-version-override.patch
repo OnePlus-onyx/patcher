@@ -1,0 +1,53 @@
+From d1a62dd6c425edc9f50eb0cd3f5f0ecc9682e6f3 Mon Sep 17 00:00:00 2001
+From: Danny Baumann <dannybaumann@web.de>
+Date: Wed, 29 Aug 2018 11:21:52 +0200
+Subject: [PATCH 2/4] Implement per-process target SDK version override.
+
+Change-Id: I65bbdbe96541d8aacdd4de125cdb9c1435129413
+Signed-off-by: ittat <ittat@live.com>
+---
+ linker/Android.bp |  3 +++
+ linker/linker.cpp | 13 ++++++++++++-
+ 2 files changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/linker/Android.bp b/linker/Android.bp
+index e1c99a928..20d2a73a4 100644
+--- a/linker/Android.bp
++++ b/linker/Android.bp
+@@ -199,6 +199,9 @@ cc_defaults {
+             cppflags: ["-DUSE_LD_CONFIG_FILE"],
+         },
+         lemon: {
++            target_process_sdk_version_override: {
++                cppflags: ["-DSDK_VERSION_OVERRIDES=\"%s\""],
++            },
+             target_shim_libs: {
+                 cppflags: ["-DLD_SHIM_LIBS=\"%s\""],
+             },
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index f8be48534..da91dedf6 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -4288,7 +4288,18 @@ std::vector<android_namespace_t*> init_default_namespaces(const char* executable
+     // somain and ld_preloads are added to these namespaces after LD_PRELOAD libs are linked
+   }
+ 
+-  set_application_target_sdk_version(config->target_sdk_version());
++  uint32_t target_sdk = config->target_sdk_version();
++#ifdef SDK_VERSION_OVERRIDES
++  for (const auto& entry : android::base::Split(SDK_VERSION_OVERRIDES, " ")) {
++    auto splitted = android::base::Split(entry, "=");
++    if (splitted.size() == 2 && splitted[0] == executable_path) {
++      target_sdk = static_cast<uint32_t>(std::stoul(splitted[1]));
++      break;
++    }
++  }
++  DEBUG("Target SDK for %s = %d", executable_path, target_sdk);
++#endif
++  set_application_target_sdk_version(target_sdk);
+ 
+   std::vector<android_namespace_t*> created_namespaces;
+   created_namespaces.reserve(namespaces.size());
+-- 
+2.17.1
+

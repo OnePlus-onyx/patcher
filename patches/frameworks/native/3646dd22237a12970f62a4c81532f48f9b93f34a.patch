@@ -1,0 +1,51 @@
+From 3646dd22237a12970f62a4c81532f48f9b93f34a Mon Sep 17 00:00:00 2001
+From: "Kevin F. Haggerty" <haggertk@lineageos.org>
+Date: Sat, 25 Aug 2018 15:00:25 -0600
+Subject: [PATCH] libui: Allow extension of valid gralloc 1.0 buffer usage bits
+
+* Change I7f4174581e24e361577640b9263514a168ed482d implemented
+  validation of the buffer description info prior to creating
+  the descriptor. Some of our legacy devices need to whitelist
+  additional usage bits to support various functionality.
+
+Change-Id: Ie369e78f78e9ac0b18ab3dfea520d4f123005d92
+---
+ libs/ui/Android.bp   | 8 ++++++++
+ libs/ui/Gralloc2.cpp | 5 +++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/libs/ui/Android.bp b/libs/ui/Android.bp
+index 0407d8802..a5ebe13bc 100644
+--- a/libs/ui/Android.bp
++++ b/libs/ui/Android.bp
+@@ -49,6 +49,14 @@ cc_library_shared {
+         "-Wno-switch-enum",
+     ],
+ 
++    product_variables: {
++        lemon: {
++            additional_gralloc_10_usage_bits: {
++                cppflags: ["-DADDNL_GRALLOC_10_USAGE_BITS=%s"],
++            },
++        },
++    },
++
+     sanitize: {
+         integer_overflow: true,
+     },
+diff --git a/libs/ui/Gralloc2.cpp b/libs/ui/Gralloc2.cpp
+index 5dc453005..cd5257b4c 100644
+--- a/libs/ui/Gralloc2.cpp
++++ b/libs/ui/Gralloc2.cpp
+@@ -48,6 +48,11 @@ uint64_t getValid10UsageBits() {
+         for (const auto bit : hardware::hidl_enum_range<BufferUsage>()) {
+             bits = bits | bit;
+         }
++#ifdef ADDNL_GRALLOC_10_USAGE_BITS
++        uint64_t addnl_bits = static_cast<uint64_t>(ADDNL_GRALLOC_10_USAGE_BITS);
++        ALOGI("Adding additional valid usage bits: 0x%" PRIx64, addnl_bits);
++        bits = bits | addnl_bits;
++#endif
+         return bits;
+     }();
+     return valid10UsageBits;

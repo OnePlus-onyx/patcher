@@ -1,0 +1,28 @@
+From f89292cf15c6c7c0e35bf780882843251bc58d85 Mon Sep 17 00:00:00 2001
+From: Kshitij Gupta <kshitijgm@gmail.com>
+Date: Wed, 10 Oct 2018 06:21:31 +0000
+Subject: [PATCH 7/8] bt: properties: Avoid macro redefinition for
+ PROPERTY_VALUE_MAX
+
+Change-Id: I203070c3524a9774e8fccbd1d28a9b16ecd2f04e
+Signed-off-by: Kshitij Gupta <kshitijgm@gmail.com>
+Signed-off-by: ittat <ittat@live.com>
+---
+ osi/include/properties.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/osi/include/properties.h b/osi/include/properties.h
+index b186f4f8e..8615099da 100644
+--- a/osi/include/properties.h
++++ b/osi/include/properties.h
+@@ -20,6 +20,7 @@
+ 
+ #include <cstdint>
+ 
++#undef PROPERTY_VALUE_MAX
+ #define PROPERTY_VALUE_MAX 92
+ #define BUILD_SANITY_PROPERTY_VALUE_MAX 92
+ 
+-- 
+2.17.1
+

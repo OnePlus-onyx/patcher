@@ -1,0 +1,35 @@
+From 5cde0c04252c76573fec75eae927e6aca562c8d1 Mon Sep 17 00:00:00 2001
+From: beanstown106 <nbenis106@gmail.com>
+Date: Wed, 7 Oct 2015 04:31:15 -0400
+Subject: [PATCH 18/33] Only show build id
+
+Change-Id: Ibf29628c622cab05597a5ca8cfd265534d303f8c
+Signed-off-by: ittat <ittat@live.com>
+---
+ core/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/core/Makefile b/core/Makefile
+index faa1d8e14..d146b0141 100644
+--- a/core/Makefile
++++ b/core/Makefile
+@@ -360,13 +360,13 @@ ifeq ($(TARGET_BUILD_VARIANT),user)
+ 
+   # Dev. branches should have DISPLAY_BUILD_NUMBER set
+   ifeq (true,$(DISPLAY_BUILD_NUMBER))
+-    BUILD_DISPLAY_ID := $(BUILD_ID).$(BUILD_NUMBER_FROM_FILE) $(BUILD_KEYS)
++    BUILD_DISPLAY_ID := $(BUILD_ID)
+   else
+-    BUILD_DISPLAY_ID := $(BUILD_ID) $(BUILD_KEYS)
++    BUILD_DISPLAY_ID := $(BUILD_ID)
+   endif
+ else
+   # Non-user builds should show detailed build information
+-  BUILD_DISPLAY_ID := $(build_desc)
++  BUILD_DISPLAY_ID := $(BUILD_ID)
+ endif
+ 
+ # Accepts a whitespace separated list of product locales such as
+-- 
+2.17.1
+

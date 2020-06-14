@@ -1,0 +1,27 @@
+From b601ef6990f3b8d2e0029a4f73a2eb3730994836 Mon Sep 17 00:00:00 2001
+From: Kshitij Gupta <kshitijgm@gmail.com>
+Date: Thu, 8 Aug 2019 16:16:49 +0530
+Subject: [PATCH 25/33] qcom_utils: Mark sdm845 as compatible
+
+Change-Id: Ieb80294b4104e573cedf42c3830a0ef031b2d6cd
+Signed-off-by: Kshitij Gupta <kshitijgm@gmail.com>
+Signed-off-by: ittat <ittat@live.com>
+---
+ core/qcom_utils.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/qcom_utils.mk b/core/qcom_utils.mk
+index 6da6f6147..7a9cae5fc 100755
+--- a/core/qcom_utils.mk
++++ b/core/qcom_utils.mk
+@@ -32,6 +32,7 @@ QCOM_BOARD_PLATFORMS += msm8996
+ QCOM_BOARD_PLATFORMS += msm8998
+ 
+ QCOM_BOARD_PLATFORMS += sdm660
++QCOM_BOARD_PLATFORMS += sdm845
+ 
+ MSM7K_BOARD_PLATFORMS := msm7x30
+ MSM7K_BOARD_PLATFORMS += msm7x27
+-- 
+2.17.1
+

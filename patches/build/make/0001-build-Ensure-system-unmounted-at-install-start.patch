@@ -1,0 +1,29 @@
+From 782f1e7229221152ca4ce83d499796e8767221e0 Mon Sep 17 00:00:00 2001
+From: Matt Mower <mowerm@gmail.com>
+Date: Fri, 21 Nov 2014 00:46:52 -0600
+Subject: [PATCH 01/33] build: Ensure /system unmounted at install start
+
+Account for the possibility that a user has mounted system manually
+before installing the FullOTA package.
+
+Change-Id: I97d0540676a7ce98762545e76ecb1a7f6335d204
+Signed-off-by: ittat <ittat@live.com>
+---
+ tools/releasetools/ota_from_target_files.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/releasetools/ota_from_target_files.py b/tools/releasetools/ota_from_target_files.py
+index 8b55f034b..5f888f9c7 100755
+--- a/tools/releasetools/ota_from_target_files.py
++++ b/tools/releasetools/ota_from_target_files.py
+@@ -938,6 +938,7 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
+   # Dump fingerprints
+   script.Print("Target: {}".format(target_info.fingerprint))
+ 
++  script.AppendExtra("ifelse(is_mounted(\"/system\"), unmount(\"/system\"));")
+   device_specific.FullOTA_InstallBegin()
+ 
+   system_progress = 0.75
+-- 
+2.17.1
+

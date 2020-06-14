@@ -1,0 +1,43 @@
+From 99cdf47a4e9e43ca5a71e886179453dbd093150c Mon Sep 17 00:00:00 2001
+From: Tom Marshall <tdm.code@gmail.com>
+Date: Thu, 9 Nov 2017 20:59:44 +0100
+Subject: [PATCH 12/33] build: Switch kernel header inclusion
+
+The build is switching to the target INSTALLED_KERNEL_HEADERS to
+declare dependencies on kernel headers.
+
+Change-Id: I913e74681b02dfcf1eaed3d1e47ff4ab2300b12d
+Signed-off-by: ittat <ittat@live.com>
+---
+ core/binary.mk | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/core/binary.mk b/core/binary.mk
+index e276debb0..5a6d2211f 100644
+--- a/core/binary.mk
++++ b/core/binary.mk
+@@ -34,12 +34,19 @@ endif
+ 
+ my_soong_problems :=
+ 
++# The proper dependency for kernel headers is INSTALLED_KERNEL_HEADERS.
++# However, there are many instances of the old style dependencies in the
++# source tree.  Fix them up and warn the user.
++ifneq (,$(findstring $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr,$(LOCAL_ADDITIONAL_DEPENDENCIES)))
++  LOCAL_ADDITIONAL_DEPENDENCIES := $(patsubst $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr,INSTALLED_KERNEL_HEADERS,$(LOCAL_ADDITIONAL_DEPENDENCIES))
++endif
++
+ # Many qcom modules don't correctly set a dependency on the kernel headers. Fix it for them,
+ # but warn the user.
+ ifneq (,$(findstring $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include,$(LOCAL_C_INCLUDES)))
+-  ifeq (,$(findstring $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr,$(LOCAL_ADDITIONAL_DEPENDENCIES)))
++  ifeq (,$(findstring INSTALLED_KERNEL_HEADERS,$(LOCAL_ADDITIONAL_DEPENDENCIES)))
+     $(warning $(LOCAL_MODULE) uses kernel headers, but does not depend on them!)
+-    LOCAL_ADDITIONAL_DEPENDENCIES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
++    LOCAL_ADDITIONAL_DEPENDENCIES += INSTALLED_KERNEL_HEADERS
+   endif
+ endif
+ 
+-- 
+2.17.1
+
