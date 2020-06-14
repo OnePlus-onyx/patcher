@@ -1,0 +1,26 @@
+From 1759e568d59686a2cc99ae55d4a614ad4e6d1fec Mon Sep 17 00:00:00 2001
+From: Bingco <ittat@live.com>
+Date: Wed, 10 Jun 2020 07:22:16 +0800
+Subject: [PATCH] Don't fail dual map if memfd isn't supported
+
+* Older kernels don't support memfd_create syscall
+* Check if the syscall is implemented instead of failing
+
+Test: m, 3.10 device boots
+---
+ runtime/jit/jit_code_cache.cc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/runtime/jit/jit_code_cache.cc b/runtime/jit/jit_code_cache.cc
+index a6aefc4773..80a5b080ad 100644
+--- a/runtime/jit/jit_code_cache.cc
++++ b/runtime/jit/jit_code_cache.cc
+@@ -209,7 +209,7 @@ bool JitCodeCache::InitializeMappings(bool rwx_memory_allowed,
+     if (mem_fd.get() < 0) {
+       std::ostringstream oss;
+       oss << "Failed to initialize dual view JIT. memfd_create() error: " << strerror(errno);
+-      if (!rwx_memory_allowed) {
++      if (!rwx_memory_allowed && errno != ENOSYS) {
+         // Without using RWX page permissions, the JIT can not fallback to single mapping as it
+         // requires tranitioning the code pages to RWX for updates.
+         *error_msg = oss.str();
