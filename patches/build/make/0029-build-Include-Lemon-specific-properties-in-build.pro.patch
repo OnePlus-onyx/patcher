@@ -37,7 +37,7 @@ index df5c13cc2..e80846dbb 100644
  
 +# ------------------------------------------------------------
 +# Include vendor specific additions to build properties
-+-include vendor/lemon/build/core/main.mk
++-include device/oneplus/onyx/vendor/lemon/build/core/main.mk
 +
  # ------------------------------------------------------------
  # Define a function that, given a list of module tags, returns
