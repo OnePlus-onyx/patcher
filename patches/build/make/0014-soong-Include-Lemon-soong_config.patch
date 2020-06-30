@@ -17,7 +17,7 @@ index 46e026aec..0b75b6cd3 100644
    $(call end_json_map))
  $(call end_json_map)
  
-+include vendor/lemon/build/soong/soong_config.mk
++include device/oneplus/onyx/vendor/lemon/build/soong/soong_config.mk
 +
  $(call json_end)
  
