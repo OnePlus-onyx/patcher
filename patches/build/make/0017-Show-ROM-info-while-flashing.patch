@@ -27,10 +27,12 @@ index 314b75051..6356410fc 100755
 +  security_patch = target_info.GetBuildProp("ro.build.version.security_patch")
 +  device = target_info.GetBuildProp("ro.lemon.device")
 +  script.Print("----------------------------------------------");
-+  script.Print("           Android Open Source Project        ");
-+  script.Print("               Lemon by YumeMichi             ");
++  script.Print("                     B2G OS                   ");
++  script.Print("     Community Driven Web Based Mobile OS     ");
++  script.Print("                by YumeMichi ittat            ");
 +  script.Print("----------------------------------------------");
 +  script.Print(" Lemon version:   %s"%(lemon_version));
++  script.Print(" B2G version:     3.0");
 +  script.Print(" Android version: %s"%(android_version));
 +  script.Print(" Build id:        %s"%(build_id));
 +  script.Print(" Build date:      %s"%(build_date));
