@@ -1,0 +1,68 @@
+From 974050f409243d30868a61ce7e9ed2152e9d4bc5 Mon Sep 17 00:00:00 2001
+From: Bingco <ittat@live.com>
+Date: Wed, 1 Jul 2020 09:06:40 +0800
+Subject: [PATCH] Make Onyx work (#1)
+
+---
+ GonkDisplay.cpp         | 12 +++++++++---
+ HWC/android_10/HWC2.cpp |  3 ++-
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/GonkDisplay.cpp b/GonkDisplay.cpp
+index 1916d4e..ecf5d39 100644
+--- a/GonkDisplay.cpp
++++ b/GonkDisplay.cpp
+@@ -38,6 +38,9 @@
+ // This define should be passed from gonk-misc and depends on device config.
+ // #define GET_FRAMEBUFFER_FORMAT_FROM_HWC
+ 
++//onyx's hwcDisplayId = 1 nor HWC_DISPLAY_PRIMARY=0
++#define  HWC_DISPLAY_PRIMARY 1
++	
+ using namespace android;
+ 
+ /* global variables */
+@@ -157,7 +160,8 @@ GonkDisplayP::GonkDisplayP()
+ 
+     std::unique_lock<std::mutex> lock(hotplugMutex);
+     HWC2::Display *hwcDisplay;
+-    while (!(hwcDisplay = mHwc->getDisplayById(HWC_DISPLAY_PRIMARY))) {
++	    
++    while (!(hwcDisplay = mHwc->getDisplayById(HWC_DISPLAY_PRIMARY))) { 
+         /* Wait at most 5s for hotplug events */
+         hotplugCv.wait_for(lock, std::chrono::seconds(5));
+     }
+@@ -181,7 +185,7 @@ GonkDisplayP::GonkDisplayP()
+         /* The emulator actually reports RGBA_8888, but EGL doesn't return
+         * any matching configuration. We force RGBX here to fix it. */
+         /*TODO: need to discuss with vendor to check this format issue.*/
+-        dispData.mSurfaceformat = HAL_PIXEL_FORMAT_RGB_565;
++        dispData.mSurfaceformat = HAL_PIXEL_FORMAT_RGBA_8888;
+     }
+     (void)hwcDisplay->createLayer(&mlayer);
+ 
+@@ -194,7 +198,9 @@ GonkDisplayP::GonkDisplayP()
+     (void)mlayer->setVisibleRegion(Region(r));
+ 
+     ALOGI("created native window\n");
+-    native_gralloc_initialize(1);
++    //native_gralloc_initialize(1);
++    //onyx
++    native_gralloc_initialize(0);
+ 
+     CreateFramebufferSurface(mSTClient,
+                              mDispSurface,
+diff --git a/HWC/android_10/HWC2.cpp b/HWC/android_10/HWC2.cpp
+index 5285a0b..6fa9486 100644
+--- a/HWC/android_10/HWC2.cpp
++++ b/HWC/android_10/HWC2.cpp
+@@ -1058,7 +1058,8 @@ Error Layer::setColorTransform(const android::mat4& matrix) {
+ #if 1 // TODO, FIXME: for the issue of sharedlibrary linking from gecko
+ extern "C" MOZ_EXPORT __attribute__ ((weak))
+ HWC2::Display* hwc2_getDisplayById(HWC2::Device *p, hwc2_display_t id) {
+-    return p->getDisplayById(id);
++    //only onyx
++    return p->getDisplayById(1);
+ }
+ 
+ extern "C" MOZ_EXPORT __attribute__ ((weak))
