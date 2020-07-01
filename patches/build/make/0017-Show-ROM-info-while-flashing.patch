@@ -29,7 +29,6 @@ index 314b75051..6356410fc 100755
 +  script.Print("----------------------------------------------");
 +  script.Print("                     B2G OS                   ");
 +  script.Print("     Community Driven Web Based Mobile OS     ");
-+  script.Print("                by YumeMichi ittat            ");
 +  script.Print("----------------------------------------------");
 +  script.Print(" Lemon version:   %s"%(lemon_version));
 +  script.Print(" B2G version:     3.0");
