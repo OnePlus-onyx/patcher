@@ -3,7 +3,10 @@
 ROOT="${PWD}"
 REPOSITORIES=(
     'bionic'
+    'build/soong'
+    'frameworks/av'
     'frameworks/base'
+    'system/core'
     'vendor/lineage'
 )
 
