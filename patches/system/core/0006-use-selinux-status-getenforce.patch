@@ -1,0 +1,42 @@
+From d04a3070bae99e6111b9aae0987d862cb8e763ba Mon Sep 17 00:00:00 2001
+From: ittat <ittat@live.com>
+Date: Sat, 12 Sep 2020 08:22:10 +0800
+Subject: [PATCH] use selinux_status_getenforce() (#1)
+
+Fix to use selinux_status_getenforce()
+---
+ init/Android.bp  | 3 +++
+ init/service.cpp | 2 ++
+ 2 files changed, 5 insertions(+)
+
+diff --git a/init/Android.bp b/init/Android.bp
+index c93852c2f1f..3d67879147f 100644
+--- a/init/Android.bp
++++ b/init/Android.bp
+@@ -251,6 +251,9 @@ cc_binary {
+         "liblog",
+         "libcutils",
+     ],
++    include_dirs: [
++        "external/selinux/libselinux/include",
++    ],
+     srcs: [
+         "action.cpp",
+         "action_manager.cpp",
+diff --git a/init/service.cpp b/init/service.cpp
+index ad9a3e0aff2..fa9dde8ae16 100644
+--- a/init/service.cpp
++++ b/init/service.cpp
+@@ -1,3 +1,4 @@
++  
+ /*
+  * Copyright (C) 2015 The Android Open Source Project
+  *
+@@ -40,6 +41,7 @@
+ #include <hidl-util/FQName.h>
+ #include <processgroup/processgroup.h>
+ #include <selinux/selinux.h>
++#include <selinux/avc.h>
+ #include <system/thread_defs.h>
+ 
+ #include "rlimit_parser.h"
