@@ -7,7 +7,6 @@ REPOSITORIES=(
     'bionic'
     'build/make'
     'build/soong'
-    'external/selinux'
     'external/tinycompress'
     'frameworks/av'
     'frameworks/native'
@@ -16,6 +15,7 @@ REPOSITORIES=(
     'hardware/libhardware_legacy'
     'system/bt'
     'system/core'
+    'gonk-misc/libcarthage'
 )
 
 for repository in "${REPOSITORIES[@]}"; do
