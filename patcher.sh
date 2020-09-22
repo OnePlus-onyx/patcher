@@ -15,7 +15,6 @@ REPOSITORIES=(
     'hardware/libhardware_legacy'
     'system/bt'
     'system/core'
-    'gonk-misc/libcarthage'
 )
 
 for repository in "${REPOSITORIES[@]}"; do
@@ -25,3 +24,14 @@ for repository in "${REPOSITORIES[@]}"; do
 
     cd "${ROOT}"
 done
+
+
+echo "Switch libcarthage to https://github.com/OnePlus-onyx/libcarthage" 
+cd ${ROOT}/gonk-misc
+rm -rf libcarthage
+git clone https://github.com/OnePlus-onyx/libcarthage -b onyx --depth=1
+echo "Done!" 
+
+cd ${ROOT}
+
+
