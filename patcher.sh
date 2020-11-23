@@ -26,11 +26,11 @@ for repository in "${REPOSITORIES[@]}"; do
 done
 
 
-echo "Switch libcarthage to https://github.com/OnePlus-onyx/libcarthage" 
-cd ${ROOT}/gonk-misc
-rm -rf libcarthage
-git clone https://github.com/OnePlus-onyx/libcarthage -b onyx --depth=1
-echo "Done!" 
+#echo "Switch libcarthage to https://github.com/OnePlus-onyx/libcarthage" 
+#cd ${ROOT}/gonk-misc
+#rm -rf libcarthage
+#git clone https://github.com/OnePlus-onyx/libcarthage -b onyx --depth=1
+#echo "Done!" 
 
 cd ${ROOT}
 
