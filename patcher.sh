@@ -10,7 +10,6 @@ REPOSITORIES=(
     'external/tinycompress'
     'frameworks/av'
     'frameworks/native'
-    'frameworks/base'
     'hardware/libhardware'
     'hardware/libhardware_legacy'
     'system/bt'
