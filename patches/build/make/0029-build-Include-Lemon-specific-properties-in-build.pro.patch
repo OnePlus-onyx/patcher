@@ -1,7 +1,7 @@
-From 3816d7dcd3e406473e76aac7ff7b5746ab613dfb Mon Sep 17 00:00:00 2001
+From cb45d833df34fd2bc3a5a8d001b6e20d6a72688b Mon Sep 17 00:00:00 2001
 From: Adrian DC <radian.dc@gmail.com>
 Date: Sat, 12 May 2018 11:24:33 +0200
-Subject: [PATCH 29/33] build: Include Lemon specific properties in build.prop
+Subject: [PATCH] build: Include Lemon specific properties in build.prop
 
  * Our properties were supposed to go to /system/etc/prop.default
     after the following commit:
@@ -24,14 +24,14 @@ Change-Id: I19918eece0f0dd3ee967db0339b4d09c9a6d540e
 Signed-off-by: Adrian DC <radian.dc@gmail.com>
 Signed-off-by: ittat <ittat@live.com>
 ---
- core/main.mk | 4 ++++
- 1 file changed, 4 insertions(+)
+ core/main.mk | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/core/main.mk b/core/main.mk
-index df5c13cc2..e80846dbb 100644
+index 352c65c82..820107ed2 100644
 --- a/core/main.mk
 +++ b/core/main.mk
-@@ -370,6 +370,10 @@ BUILD_WITHOUT_PV := true
+@@ -370,6 +370,11 @@ BUILD_WITHOUT_PV := true
  
  ADDITIONAL_BUILD_PROPERTIES += net.bt.name=Android
  
@@ -39,9 +39,10 @@ index df5c13cc2..e80846dbb 100644
 +# Include vendor specific additions to build properties
 +-include vendor/lemon/build/core/main.mk
 +
- # ------------------------------------------------------------
- # Define a function that, given a list of module tags, returns
- # non-empty if that module should be installed in /system.
++
+ # Add KaiOS build UID to system property
+ REPO_INFO := $(GECKO_OBJDIR)/dist/repo_info.txt
+ ifneq ($(wildcard $(REPO_INFO)),)
 -- 
 2.17.1
 
