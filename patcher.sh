@@ -18,7 +18,7 @@ REPOSITORIES=(
 
 for repository in "${REPOSITORIES[@]}"; do
     cd "${ROOT}/${repository}"
-        for patch in ${ROOT}/patcher/patches/${repository}*.patch; do
+        for patch in ${ROOT}/patcher/patches/${repository}/*.patch; do
                 #Check if patch is already applied
                 if patch -f -p1 --dry-run -R < $patch > /dev/null;then
                         echo -e "\e[1;33m [Skip] \e[0m  ${patch##*/}"
