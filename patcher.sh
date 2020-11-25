@@ -30,7 +30,7 @@ for repository in "${REPOSITORIES[@]}"; do
                     echo -e "\e[1;31m [Error] \e[0m removed: ${patch##*/}"
                     rm ${ROOT}/patcher/patch.tmp
                 else
-                    echo -e "\e[1;32m [Patch] \e[0m  ${patch##*/}"
+                    echo  "\e[1;32m [Patch] \e[0m  ${patch##*/}"
                     git am $patch > /dev/null
                 fi
         done 
